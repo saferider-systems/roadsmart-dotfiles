@@ -1,10 +1,6 @@
 # Created by Zap installer
 [ -f "${XDG_DATA_HOME:-$HOME/.local/share}/zap/zap.zsh" ] && source "${XDG_DATA_HOME:-$HOME/.local/share}/zap/zap.zsh"
 
-# Load and initialise completion system
-autoload -Uz compinit; compinit
-autoload bashcompinit; bashcompinit
-
 # History
 export HISTFILESIZE=1000000
 export HISTSIZE=10000001
@@ -27,3 +23,15 @@ plug "zsh-users/zsh-syntax-highlighting"
 
 zstyle ':completion:*' special-dirs false
 zstyle ':completion::complete:*' use-cache 1
+
+# Confirm ssh-agent is running
+if [ -z "$SSH_AUTH_SOCK" ]; then
+    eval "$(ssh-agent -s)"
+fi
+
+# Load and initialise completion system
+autoload -Uz compinit; compinit
+autoload bashcompinit; bashcompinit
+
+# AWS CLI completion in zsh
+complete -C "/snap/aws-cli/current/bin/aws_completer" aws
