@@ -10,7 +10,8 @@ setopt INC_APPEND_HISTORY
 setopt HIST_IGNORE_SPACE
 
 # Sources
-#plug "$HOME/.config/zsh/zsh-aliases.zsh"
+plug "$HOME/.config/zsh/zsh-aliases.zsh"
+plug "$HOME/.config/zsh/zsh-exports.zsh"
 plug "$HOME/.config/zsh/zsh-prompt.zsh"
 plug "$HOME/.config/zsh/zsh-vim.zsh"
 
