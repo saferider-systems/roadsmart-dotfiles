@@ -14,9 +14,10 @@ export PATH="$HOME/.local/bin:$PATH"
 # NodeJS global packages
 export PATH="$HOME/.npm-global/bin:$PATH"
 # Go
+export GOROOT="/usr/local/go"
 export GOPATH="$HOME/.go"
 export GOBIN="$GOPATH/bin"
-export PATH="$GOBIN:$PATH"
+export PATH="$GOBIN:$GOROOT/bin:$PATH"
 # Rust/Cargo
 export PATH="$HOME/.cargo/bin:$PATH"
 # Custom scripts
