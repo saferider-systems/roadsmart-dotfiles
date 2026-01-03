@@ -1,2 +1,4 @@
-# Ignore zsh history
+# Ignore zsh files
 *zsh_history*
+*.zcompcache*
+*.zcompdump*
