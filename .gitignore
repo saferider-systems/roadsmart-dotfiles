@@ -1,5 +1,5 @@
 # Ignore zsh files
-*zsh_history*
+*.zsh_history*
 *.zcompcache*
 *.zcompdump*
 
