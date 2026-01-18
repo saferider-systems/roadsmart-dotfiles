@@ -1,11 +1,14 @@
 -- ============================================================================
 -- PARTITION _transmissions FROM 2020 TO 2027
 -- ============================================================================
--- Creates partitions for all years 2020-2027, even if data doesn't exist
--- Empty partitions have minimal overhead and are good practice
+-- Step 1: Drop the existing primary key
+ALTER TABLE _transmissions DROP PRIMARY KEY;
+
+-- Step 2: Add new primary key that includes the partitioning column
+ALTER TABLE _transmissions ADD PRIMARY KEY (id, createdAt);
+
+-- Step 3: Apply partitioning
 ALTER TABLE _transmissions 
-DROP PRIMARY KEY,
-ADD PRIMARY KEY (id, createdAt),
 PARTITION BY RANGE (YEAR(createdAt) * 100 + MONTH(createdAt)) (
     -- 2020 partitions (likely empty, but safe to have)
     PARTITION p_2020_01 VALUES LESS THAN (202002),
