@@ -1,13 +1,19 @@
 -- ============================================================================
 -- PARTITION _transmissions FROM 2020 TO 2027
 -- ============================================================================
--- Step 1: Drop the existing primary key
+-- Step 1: Remove AUTO_INCREMENT from id column temporarily
+ALTER TABLE _transmissions MODIFY COLUMN id INT NOT NULL;
+
+-- Step 2: Drop the existing primary key
 ALTER TABLE _transmissions DROP PRIMARY KEY;
 
--- Step 2: Add new primary key that includes the partitioning column
+-- Step 3: Add new composite primary key that includes the partitioning column
 ALTER TABLE _transmissions ADD PRIMARY KEY (id, createdAt);
 
--- Step 3: Apply partitioning
+-- Step 4: Restore AUTO_INCREMENT on id column
+ALTER TABLE _transmissions MODIFY COLUMN id INT NOT NULL AUTO_INCREMENT;
+
+-- Step 5: Apply partitioning
 ALTER TABLE _transmissions 
 PARTITION BY RANGE (YEAR(createdAt) * 100 + MONTH(createdAt)) (
     -- 2020 partitions (likely empty, but safe to have)
