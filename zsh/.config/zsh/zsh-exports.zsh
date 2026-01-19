@@ -21,8 +21,8 @@ export GOBIN="$GOPATH/bin"
 export PATH="$GOENV:$GOBIN:$GOROOT/bin:$PATH"
 # Rust/Cargo
 export PATH="$HOME/.cargo/bin:$PATH"
-# Custom scripts
-export PATH="$HOME/.scripts:$HOME/.scripts/terraform:$PATH"
+# Python
+export PATH="/usr/local/python2.7/bin:$PATH"
 
 # ------------------------
 # Pager & Man
