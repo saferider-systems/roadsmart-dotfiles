@@ -6,6 +6,8 @@ module.exports = {
       script: "npm",
       args: "start",
       interpreter: "none",
+      wait_ready: true,
+      listen_timeout: 15000,
     },
   ],
 };
