@@ -1,32 +1,28 @@
 module.exports = {
   apps: [
     {
-      name: "roadsmart-socket-service",
-      cwd: "/home/ubuntu/roadsmart-core-stack/roadsmart-socket-service",
-      script: "./dist/index.bundle.js",
+      name: 'roadsmart-socket-service',
+      cwd: '/home/ubuntu/roadsmart-core-stack/roadsmart-socket-service',
+      script: './dist/index.bundle.js',
       instances: 1,
-      exec_mode: "fork",
-      max_memory_restart: "512M", // Restart if exceeds 512MB
-      interpreter: "/home/ubuntu/.nvm/versions/node/v14.21.3/bin/node",
+      exec_mode: 'fork',
+      max_memory_restart: '512M', // Restart if exceeds 512MB
+      interpreter: '/home/ubuntu/.nvm/versions/node/v14.21.3/bin/node',
       wait_ready: true,
       listen_timeout: 5000,
-      log_date_format: "YYYY-MM-DD HH:mm:ss Z",
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
       merge_logs: true,
       env_production: {
         PORT: 5000,
-        JWT_SECRET_PROD:
-          "8bca57badec39e7039c67547e2a11f22a5b0aa52bd14412cc207d270c56ff6fe",
-        MYSQL_URL_PROD:
-          "mysql://saferider:FXuGM4ZARGWX9ddfwnfS@roadsmart-dev-db.cwtndifrv6ev.eu-central-1.rds.amazonaws.com:3306/Roadsmart",
-        REDIS_HOST_PROD: "localhost",
+        JWT_SECRET_PROD: '8bca57badec39e7039c67547e2a11f22a5b0aa52bd14412cc207d270c56ff6fe',
+        MYSQL_URL_PROD: 'mysql://saferider:FXuGM4ZARGWX9ddfwnfS@roadsmart-dev-db.cwtndifrv6ev.eu-central-1.rds.amazonaws.com:3306/Roadsmart',
+        REDIS_HOST_PROD: 'localhost',
         REDIS_PORT_PROD: 6379,
-        REDIS_PASS_PROD: "roadsmart123",
+        REDIS_PASS_PROD: 'roadsmart123',
         GATEWAY_SOCKET_PORT: 6000,
         USER_SOCKET_PORT: 7000,
-        SOCKET_KEY:
-          "1938e460f45d14db15a2c03b70343173a1bf7042d786e246a61ec0318d646589",
-        SESSION_SECRET:
-          "fc5b1b05e7162a0abd4239b71cf62855b7241b73f5f82665abeabac31f806abf",
+        SOCKET_KEY: '1938e460f45d14db15a2c03b70343173a1bf7042d786e246a61ec0318d646589',
+        SESSION_SECRET: 'fc5b1b05e7162a0abd4239b71cf62855b7241b73f5f82665abeabac31f806abf',
       },
     },
     // {
@@ -66,4 +62,4 @@ module.exports = {
     //   listen_timeout: 5000,
     // },
   ],
-};
+}
