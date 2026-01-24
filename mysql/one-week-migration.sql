@@ -46,7 +46,12 @@ Version: 1.0 - Test migration with daily partitions
 ================================================================================
 */
 
-DROP PROCEDURE IF EXISTS MigrateWithDailyPartitions ;
+-- ============================================================================
+-- CRITICAL: Change delimiter to allow semicolons inside the procedure
+-- ============================================================================
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS MigrateWithDailyPartitions$$
 
 CREATE PROCEDURE MigrateWithDailyPartitions (
 IN start_id BIGINT,
@@ -141,4 +146,10 @@ WHERE id > = start_id AND id < end_id ;
 ALTER TABLE transmissions_test ADD INDEX id_transmissions_field
 (tracker_id, received_date_time, report_date_time, vehicle_registration) ;
 
-END ;
+END
+$$
+
+-- ============================================================================
+-- Restore delimiter back to semicolon
+-- ============================================================================
+DELIMITER ;
