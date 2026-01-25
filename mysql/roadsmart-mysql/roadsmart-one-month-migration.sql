@@ -1,0 +1,226 @@
+DELIMITER //
+
+DROP PROCEDURE IF EXISTS MigrateWithWeeklyPartitions //
+
+CREATE PROCEDURE MigrateWithWeeklyPartitions(IN start_id BIGINT, IN end_id BIGINT)
+BEGIN
+    -- 1. Create the skeleton using the production schema
+    DROP TABLE IF EXISTS _transmissions_new;
+    CREATE TABLE _transmissions_new LIKE _transmissions;
+    
+    -- 2. Enforce NOT NULL constraint on partition key
+    -- Required because partitioning by received_date_time means NULL values cannot be stored
+    ALTER TABLE _transmissions_new 
+        MODIFY COLUMN received_date_time DATETIME NOT NULL;
+    
+    -- 3. Modify the Primary Key (Instant on empty table)
+    -- MySQL partitioning requires that ALL unique keys must include the partitioning column
+    ALTER TABLE _transmissions_new 
+        DROP PRIMARY KEY, 
+        ADD PRIMARY KEY (id, received_date_time);
+    
+    -- 4. Add Weekly Partitions (October 2025 - January 2028)
+    -- Each partition represents one week (Sunday to Saturday)
+    -- Partitions cover 28 months = ~120 weeks
+    ALTER TABLE _transmissions_new 
+    PARTITION BY RANGE COLUMNS(received_date_time) (
+        -- October 2025 (starts Sunday, Oct 5, 2025)
+        PARTITION p_2025_w40 VALUES LESS THAN ('2025-10-05 00:00:00'),
+        PARTITION p_2025_w41 VALUES LESS THAN ('2025-10-12 00:00:00'),
+        PARTITION p_2025_w42 VALUES LESS THAN ('2025-10-19 00:00:00'),
+        PARTITION p_2025_w43 VALUES LESS THAN ('2025-10-26 00:00:00'),
+        
+        -- November 2025
+        PARTITION p_2025_w44 VALUES LESS THAN ('2025-11-02 00:00:00'),
+        PARTITION p_2025_w45 VALUES LESS THAN ('2025-11-09 00:00:00'),
+        PARTITION p_2025_w46 VALUES LESS THAN ('2025-11-16 00:00:00'),
+        PARTITION p_2025_w47 VALUES LESS THAN ('2025-11-23 00:00:00'),
+        PARTITION p_2025_w48 VALUES LESS THAN ('2025-11-30 00:00:00'),
+        
+        -- December 2025
+        PARTITION p_2025_w49 VALUES LESS THAN ('2025-12-07 00:00:00'),
+        PARTITION p_2025_w50 VALUES LESS THAN ('2025-12-14 00:00:00'),
+        PARTITION p_2025_w51 VALUES LESS THAN ('2025-12-21 00:00:00'),
+        PARTITION p_2025_w52 VALUES LESS THAN ('2025-12-28 00:00:00'),
+        
+        -- January 2026
+        PARTITION p_2026_w01 VALUES LESS THAN ('2026-01-04 00:00:00'),
+        PARTITION p_2026_w02 VALUES LESS THAN ('2026-01-11 00:00:00'),
+        PARTITION p_2026_w03 VALUES LESS THAN ('2026-01-18 00:00:00'),
+        PARTITION p_2026_w04 VALUES LESS THAN ('2026-01-25 00:00:00'),
+        
+        -- February 2026
+        PARTITION p_2026_w05 VALUES LESS THAN ('2026-02-01 00:00:00'),
+        PARTITION p_2026_w06 VALUES LESS THAN ('2026-02-08 00:00:00'),
+        PARTITION p_2026_w07 VALUES LESS THAN ('2026-02-15 00:00:00'),
+        PARTITION p_2026_w08 VALUES LESS THAN ('2026-02-22 00:00:00'),
+        
+        -- March 2026
+        PARTITION p_2026_w09 VALUES LESS THAN ('2026-03-01 00:00:00'),
+        PARTITION p_2026_w10 VALUES LESS THAN ('2026-03-08 00:00:00'),
+        PARTITION p_2026_w11 VALUES LESS THAN ('2026-03-15 00:00:00'),
+        PARTITION p_2026_w12 VALUES LESS THAN ('2026-03-22 00:00:00'),
+        PARTITION p_2026_w13 VALUES LESS THAN ('2026-03-29 00:00:00'),
+        
+        -- April 2026
+        PARTITION p_2026_w14 VALUES LESS THAN ('2026-04-05 00:00:00'),
+        PARTITION p_2026_w15 VALUES LESS THAN ('2026-04-12 00:00:00'),
+        PARTITION p_2026_w16 VALUES LESS THAN ('2026-04-19 00:00:00'),
+        PARTITION p_2026_w17 VALUES LESS THAN ('2026-04-26 00:00:00'),
+        
+        -- May 2026
+        PARTITION p_2026_w18 VALUES LESS THAN ('2026-05-03 00:00:00'),
+        PARTITION p_2026_w19 VALUES LESS THAN ('2026-05-10 00:00:00'),
+        PARTITION p_2026_w20 VALUES LESS THAN ('2026-05-17 00:00:00'),
+        PARTITION p_2026_w21 VALUES LESS THAN ('2026-05-24 00:00:00'),
+        PARTITION p_2026_w22 VALUES LESS THAN ('2026-05-31 00:00:00'),
+        
+        -- June 2026
+        PARTITION p_2026_w23 VALUES LESS THAN ('2026-06-07 00:00:00'),
+        PARTITION p_2026_w24 VALUES LESS THAN ('2026-06-14 00:00:00'),
+        PARTITION p_2026_w25 VALUES LESS THAN ('2026-06-21 00:00:00'),
+        PARTITION p_2026_w26 VALUES LESS THAN ('2026-06-28 00:00:00'),
+        
+        -- July 2026
+        PARTITION p_2026_w27 VALUES LESS THAN ('2026-07-05 00:00:00'),
+        PARTITION p_2026_w28 VALUES LESS THAN ('2026-07-12 00:00:00'),
+        PARTITION p_2026_w29 VALUES LESS THAN ('2026-07-19 00:00:00'),
+        PARTITION p_2026_w30 VALUES LESS THAN ('2026-07-26 00:00:00'),
+        
+        -- August 2026
+        PARTITION p_2026_w31 VALUES LESS THAN ('2026-08-02 00:00:00'),
+        PARTITION p_2026_w32 VALUES LESS THAN ('2026-08-09 00:00:00'),
+        PARTITION p_2026_w33 VALUES LESS THAN ('2026-08-16 00:00:00'),
+        PARTITION p_2026_w34 VALUES LESS THAN ('2026-08-23 00:00:00'),
+        PARTITION p_2026_w35 VALUES LESS THAN ('2026-08-30 00:00:00'),
+        
+        -- September 2026
+        PARTITION p_2026_w36 VALUES LESS THAN ('2026-09-06 00:00:00'),
+        PARTITION p_2026_w37 VALUES LESS THAN ('2026-09-13 00:00:00'),
+        PARTITION p_2026_w38 VALUES LESS THAN ('2026-09-20 00:00:00'),
+        PARTITION p_2026_w39 VALUES LESS THAN ('2026-09-27 00:00:00'),
+        
+        -- October 2026
+        PARTITION p_2026_w40 VALUES LESS THAN ('2026-10-04 00:00:00'),
+        PARTITION p_2026_w41 VALUES LESS THAN ('2026-10-11 00:00:00'),
+        PARTITION p_2026_w42 VALUES LESS THAN ('2026-10-18 00:00:00'),
+        PARTITION p_2026_w43 VALUES LESS THAN ('2026-10-25 00:00:00'),
+        
+        -- November 2026
+        PARTITION p_2026_w44 VALUES LESS THAN ('2026-11-01 00:00:00'),
+        PARTITION p_2026_w45 VALUES LESS THAN ('2026-11-08 00:00:00'),
+        PARTITION p_2026_w46 VALUES LESS THAN ('2026-11-15 00:00:00'),
+        PARTITION p_2026_w47 VALUES LESS THAN ('2026-11-22 00:00:00'),
+        PARTITION p_2026_w48 VALUES LESS THAN ('2026-11-29 00:00:00'),
+        
+        -- December 2026
+        PARTITION p_2026_w49 VALUES LESS THAN ('2026-12-06 00:00:00'),
+        PARTITION p_2026_w50 VALUES LESS THAN ('2026-12-13 00:00:00'),
+        PARTITION p_2026_w51 VALUES LESS THAN ('2026-12-20 00:00:00'),
+        PARTITION p_2026_w52 VALUES LESS THAN ('2026-12-27 00:00:00'),
+        
+        -- January 2027
+        PARTITION p_2027_w01 VALUES LESS THAN ('2027-01-03 00:00:00'),
+        PARTITION p_2027_w02 VALUES LESS THAN ('2027-01-10 00:00:00'),
+        PARTITION p_2027_w03 VALUES LESS THAN ('2027-01-17 00:00:00'),
+        PARTITION p_2027_w04 VALUES LESS THAN ('2027-01-24 00:00:00'),
+        PARTITION p_2027_w05 VALUES LESS THAN ('2027-01-31 00:00:00'),
+        
+        -- February 2027
+        PARTITION p_2027_w06 VALUES LESS THAN ('2027-02-07 00:00:00'),
+        PARTITION p_2027_w07 VALUES LESS THAN ('2027-02-14 00:00:00'),
+        PARTITION p_2027_w08 VALUES LESS THAN ('2027-02-21 00:00:00'),
+        PARTITION p_2027_w09 VALUES LESS THAN ('2027-02-28 00:00:00'),
+        
+        -- March 2027
+        PARTITION p_2027_w10 VALUES LESS THAN ('2027-03-07 00:00:00'),
+        PARTITION p_2027_w11 VALUES LESS THAN ('2027-03-14 00:00:00'),
+        PARTITION p_2027_w12 VALUES LESS THAN ('2027-03-21 00:00:00'),
+        PARTITION p_2027_w13 VALUES LESS THAN ('2027-03-28 00:00:00'),
+        
+        -- April 2027
+        PARTITION p_2027_w14 VALUES LESS THAN ('2027-04-04 00:00:00'),
+        PARTITION p_2027_w15 VALUES LESS THAN ('2027-04-11 00:00:00'),
+        PARTITION p_2027_w16 VALUES LESS THAN ('2027-04-18 00:00:00'),
+        PARTITION p_2027_w17 VALUES LESS THAN ('2027-04-25 00:00:00'),
+        
+        -- May 2027
+        PARTITION p_2027_w18 VALUES LESS THAN ('2027-05-02 00:00:00'),
+        PARTITION p_2027_w19 VALUES LESS THAN ('2027-05-09 00:00:00'),
+        PARTITION p_2027_w20 VALUES LESS THAN ('2027-05-16 00:00:00'),
+        PARTITION p_2027_w21 VALUES LESS THAN ('2027-05-23 00:00:00'),
+        PARTITION p_2027_w22 VALUES LESS THAN ('2027-05-30 00:00:00'),
+        
+        -- June 2027
+        PARTITION p_2027_w23 VALUES LESS THAN ('2027-06-06 00:00:00'),
+        PARTITION p_2027_w24 VALUES LESS THAN ('2027-06-13 00:00:00'),
+        PARTITION p_2027_w25 VALUES LESS THAN ('2027-06-20 00:00:00'),
+        PARTITION p_2027_w26 VALUES LESS THAN ('2027-06-27 00:00:00'),
+        
+        -- July 2027
+        PARTITION p_2027_w27 VALUES LESS THAN ('2027-07-04 00:00:00'),
+        PARTITION p_2027_w28 VALUES LESS THAN ('2027-07-11 00:00:00'),
+        PARTITION p_2027_w29 VALUES LESS THAN ('2027-07-18 00:00:00'),
+        PARTITION p_2027_w30 VALUES LESS THAN ('2027-07-25 00:00:00'),
+        
+        -- August 2027
+        PARTITION p_2027_w31 VALUES LESS THAN ('2027-08-01 00:00:00'),
+        PARTITION p_2027_w32 VALUES LESS THAN ('2027-08-08 00:00:00'),
+        PARTITION p_2027_w33 VALUES LESS THAN ('2027-08-15 00:00:00'),
+        PARTITION p_2027_w34 VALUES LESS THAN ('2027-08-22 00:00:00'),
+        PARTITION p_2027_w35 VALUES LESS THAN ('2027-08-29 00:00:00'),
+        
+        -- September 2027
+        PARTITION p_2027_w36 VALUES LESS THAN ('2027-09-05 00:00:00'),
+        PARTITION p_2027_w37 VALUES LESS THAN ('2027-09-12 00:00:00'),
+        PARTITION p_2027_w38 VALUES LESS THAN ('2027-09-19 00:00:00'),
+        PARTITION p_2027_w39 VALUES LESS THAN ('2027-09-26 00:00:00'),
+        
+        -- October 2027
+        PARTITION p_2027_w40 VALUES LESS THAN ('2027-10-03 00:00:00'),
+        PARTITION p_2027_w41 VALUES LESS THAN ('2027-10-10 00:00:00'),
+        PARTITION p_2027_w42 VALUES LESS THAN ('2027-10-17 00:00:00'),
+        PARTITION p_2027_w43 VALUES LESS THAN ('2027-10-24 00:00:00'),
+        PARTITION p_2027_w44 VALUES LESS THAN ('2027-10-31 00:00:00'),
+        
+        -- November 2027
+        PARTITION p_2027_w45 VALUES LESS THAN ('2027-11-07 00:00:00'),
+        PARTITION p_2027_w46 VALUES LESS THAN ('2027-11-14 00:00:00'),
+        PARTITION p_2027_w47 VALUES LESS THAN ('2027-11-21 00:00:00'),
+        PARTITION p_2027_w48 VALUES LESS THAN ('2027-11-28 00:00:00'),
+        
+        -- December 2027
+        PARTITION p_2027_w49 VALUES LESS THAN ('2027-12-05 00:00:00'),
+        PARTITION p_2027_w50 VALUES LESS THAN ('2027-12-12 00:00:00'),
+        PARTITION p_2027_w51 VALUES LESS THAN ('2027-12-19 00:00:00'),
+        PARTITION p_2027_w52 VALUES LESS THAN ('2027-12-26 00:00:00'),
+        
+        -- January 2028
+        PARTITION p_2028_w01 VALUES LESS THAN ('2028-01-02 00:00:00'),
+        PARTITION p_2028_w02 VALUES LESS THAN ('2028-01-09 00:00:00'),
+        PARTITION p_2028_w03 VALUES LESS THAN ('2028-01-16 00:00:00'),
+        PARTITION p_2028_w04 VALUES LESS THAN ('2028-01-23 00:00:00'),
+        PARTITION p_2028_w05 VALUES LESS THAN ('2028-01-30 00:00:00'),
+        
+        -- Future data (safety net)
+        PARTITION p_future VALUES LESS THAN (MAXVALUE)
+    );
+    
+    -- 5. Drop the heavy index before the big move
+    -- Crucial for performance when moving millions of rows
+    ALTER TABLE _transmissions_new DROP INDEX id_transmissions_field;
+    
+    -- 6. Perform the Bulk Insert
+    -- MySQL routes each row to the correct partition based on received_date_time
+    INSERT INTO _transmissions_new
+    SELECT * FROM _transmissions
+    WHERE id >= start_id AND id < end_id;
+    
+    -- 7. Rebuild the Composite Index
+    -- Rebuilding after data load is 3-5x faster than maintaining during INSERT
+    ALTER TABLE _transmissions_new ADD INDEX id_transmissions_field 
+    (tracker_id, received_date_time, report_date_time, vehicle_registration);
+    
+END //
+
+DELIMITER ;
