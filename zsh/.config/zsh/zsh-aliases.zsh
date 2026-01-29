@@ -39,7 +39,7 @@ alias configrc='nvim_cd ~/.config/'
 alias nvimrc='nvim_cd ~/.config/nvim'
 alias zshrc='nvim_cd ~/.config/zsh'
 alias nv='nvim'
-alias Nv='sudo nvim'
+alias Nv='doas nvim'
 
 # nnn
 alias n='nnn -dr'

@@ -46,4 +46,4 @@ local options = {
     indent = { enable = true },
 }
 
-require("nvim-treesitter.configs").setup(options)
+require("nvim-treesitter.config").setup(options)
