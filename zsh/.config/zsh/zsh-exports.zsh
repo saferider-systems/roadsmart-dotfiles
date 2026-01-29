@@ -28,7 +28,7 @@ export PATH="$HOME/.local/bin/nvim/bin:$PATH"
 # ------------------------
 # Pager & Man
 # ------------------------
-export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+export MANPAGER="sh -c 'col -bx | batcat -l man -p'"
 export MANROFFOPT="-c"
 export MANWIDTH=999
 
