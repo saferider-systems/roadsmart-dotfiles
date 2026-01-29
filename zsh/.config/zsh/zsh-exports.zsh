@@ -23,7 +23,8 @@ export PATH="$GOENV:$GOBIN:$GOROOT/bin:$PATH"
 export PATH="$HOME/.cargo/bin:$PATH"
 # Python
 export PATH="/usr/local/python2.7/bin:$PATH"
-
+# Neovim
+export PATH="$HOME/.local/bin/nvim/bin:$PATH"
 # ------------------------
 # Pager & Man
 # ------------------------
