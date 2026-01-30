@@ -1,7 +1,7 @@
 # ============================================================
 # Upstream Definition
 # ============================================================
-upstream roadsmart_dev_upstream {
+upstream roadsmart_nodejs_backend {
     least_conn;
 
     server 127.0.0.1:5400 max_fails=3 fail_timeout=30s;
@@ -12,7 +12,7 @@ upstream roadsmart_dev_upstream {
 }
 
 # ============================================================
-# HTTP → HTTPS Redirect
+# Server Block 1: HTTP to HTTPS Redirect (Main Domains)
 # ============================================================
 server {
     listen 80;
@@ -24,7 +24,19 @@ server {
 }
 
 # ============================================================
-# HTTPS Server Block
+# Server Block 2: HTTP to HTTPS Redirect (API Subdomain)
+# ============================================================
+server {
+    listen 80;
+    listen [::]:80;
+
+    server_name api.roadsmartspeedtracker.com;
+
+    return 301 https://api.roadsmartspeedtracker.com$request_uri;
+}
+
+# ============================================================
+# HTTPS Server Block for Web Platform
 # ============================================================
 server {
     listen 443 ssl http2;
@@ -42,7 +54,7 @@ server {
     # Reverse Proxy
     # --------------------------------------------------------
     location / {
-        proxy_pass http://roadsmart_dev_upstream;
+        proxy_pass http://roadsmart_nodejs_backend;
 
         proxy_read_timeout 300;
         proxy_connect_timeout 300;
@@ -66,4 +78,49 @@ server {
 
     access_log /var/log/nginx/dev.roadsmartspeedtracker.access.log;
     error_log  /var/log/nginx/dev.roadsmartspeedtracker.error.log;
+}
+
+# ============================================================
+# HTTPS Server Block for API
+# ============================================================
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+
+    server_name api.roadsmartspeedtracker.com;
+
+    # --------------------------------------------------------
+    # SSL Configuration (Certbot-managed)
+    # --------------------------------------------------------
+    ssl_certificate /etc/letsencrypt/live/api.roadsmartspeedtracker.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/api.roadsmartspeedtracker.com/privkey.pem;
+
+    # --------------------------------------------------------
+    # Reverse Proxy
+    # --------------------------------------------------------
+    location / {
+        proxy_pass http://roadsmart_nodejs_backend;
+
+        proxy_read_timeout 300;
+        proxy_connect_timeout 300;
+        proxy_send_timeout 300;
+
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-NginX-Proxy true;
+
+        proxy_redirect off;
+        proxy_cache_bypass $http_upgrade;
+        proxy_ssl_session_reuse off;
+    }
+
+    # --------------------------------------------------------
+    # Limits & Logs
+    # --------------------------------------------------------
+    client_max_body_size 20M;
+
+    access_log /var/log/nginx/api.roadsmartspeedtracker.access.log;
+    error_log  /var/log/nginx/api.roadsmartspeedtracker.error.log;
 }
