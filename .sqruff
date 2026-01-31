@@ -1,0 +1,9 @@
+[sqruff]
+dialect = mysql
+exclude_rules = AM01,AM02,LT01
+rules = all
+
+[sqruff:indentation]
+indent_unit = space
+tab_space_size = 8
+indented_joins = True
