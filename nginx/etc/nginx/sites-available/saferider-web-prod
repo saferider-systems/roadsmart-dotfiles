@@ -35,30 +35,10 @@ server {
 server {
   listen 80;
   listen [::]:80;
+ 
   server_name init.roadsmartspeedtracker.com;
 
-  location / {
-    proxy_read_timeout 300;
-    proxy_connect_timeout 300;
-    proxy_send_timeout 300;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_set_header X-NginX-Proxy true;
-    proxy_pass http://roadsmart_web_platform;
-    proxy_ssl_session_reuse off;
-    proxy_set_header Host $http_host;
-    proxy_cache_bypass $http_upgrade;
-    proxy_redirect off;
-  }
-
-  # --------------------------------------------------------
-  # Limits & Logs
-  # --------------------------------------------------------
-  client_max_body_size 20M;
-
-  access_log /var/log/nginx/init.roadsmartspeedtracker.access.log;
-  error_log  /var/log/nginx/init.roadsmartspeedtracker.error.log;
+  return 301 https://init.roadsmartspeedtracker.com$request_uri;
 }
 
 # ============================================================
@@ -122,4 +102,56 @@ server {
 
     access_log /var/log/nginx/roadsmartspeedtracker.access.log;
     error_log  /var/log/nginx/roadsmartspeedtracker.error.log;
+}
+
+# ============================================================
+# HTTPS Server Block for FastSetting application
+# ============================================================
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+
+    server_name init.roadsmartspeedtracker.com;
+
+    # --------------------------------------------------------
+    # SSL Configuration (Certbot-managed)
+    # --------------------------------------------------------
+    ssl_certificate /etc/letsencrypt/live/init.roadsmartspeedtracker.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/init.roadsmartspeedtracker.com/privkey.pem;
+
+    # Include legacy TLS versions (INSECURE - only if absolutely necessary)
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+    
+    # Wider cipher suite to support older clients
+    ssl_ciphers 'ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA384:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA256:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256';
+    ssl_prefer_server_ciphers on;
+
+    # --------------------------------------------------------
+    # Reverse Proxy
+    # --------------------------------------------------------
+    location / {
+        proxy_pass http://roadsmart_web_platform;
+
+        proxy_read_timeout 300;
+        proxy_connect_timeout 300;
+        proxy_send_timeout 300;
+
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-NginX-Proxy true;
+
+        proxy_redirect off;
+        proxy_cache_bypass $http_upgrade;
+        proxy_ssl_session_reuse off;
+    }
+
+    # --------------------------------------------------------
+    # Limits & Logs
+    # --------------------------------------------------------
+    client_max_body_size 20M;
+
+    access_log /var/log/nginx/init.roadsmartspeedtracker.access.log;
+    error_log  /var/log/nginx/init.roadsmartspeedtracker.error.log;
 }
